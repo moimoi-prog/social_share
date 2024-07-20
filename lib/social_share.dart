@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 const MethodChannel _channel = const MethodChannel('social_share');
 
@@ -90,41 +92,40 @@ class SocialShare {
     return response;
   }
 
-  Future<String?> shareTwitter(
-    String captionText, {
-    List<String>? hashtags,
-    String? url,
-    String? trailingText,
+  Future<void> shareTwitter({
+    String? text,
+    // List<String>? hashtags,
   }) async {
-    //Caption
-    var _captionText = captionText;
+    final nativeBaseUrl = 'twitter://post';
+    final webBaseUrl = 'https://twitter.com/intent/tweet';
 
-    //Hashtags
-    if (hashtags != null && hashtags.isNotEmpty) {
-      final tags = hashtags.map((t) => '#$t ').join(' ');
-      _captionText = _captionText + '\n' + tags.toString();
+    if (await canLaunchUrlString(nativeBaseUrl)) {
+      final queryParameters = {
+        if (text != null) 'message': text,
+        // if (hashtags != null && hashtags.isNotEmpty)
+        //   'hashtags': hashtags.join(','),
+      };
+
+      final postUrl = Uri.parse(nativeBaseUrl).replace(
+        queryParameters: queryParameters,
+      );
+
+      await launchUrl(postUrl);
+    } else if (await canLaunchUrlString(webBaseUrl)) {
+      final queryParameters = {
+        if (text != null) 'text': text,
+        // if (hashtags != null && hashtags.isNotEmpty)
+        //   'hashtags': hashtags.join(','),
+      };
+
+      final postUrl = Uri.parse(webBaseUrl).replace(
+        queryParameters: queryParameters,
+      );
+
+      await launchUrl(postUrl);
+    } else {
+      throw 'Could not launch X.';
     }
-
-    //Url
-    String _url;
-    if (url != null) {
-      if (Platform.isAndroid) {
-        _url = Uri.parse(url).toString().replaceAll('#', '%23');
-      } else {
-        _url = Uri.parse(url).toString();
-      }
-      _captionText = _captionText + '\n' + _url;
-    }
-
-    if (trailingText != null) {
-      _captionText = _captionText + '\n' + trailingText;
-    }
-
-    final args = <String, dynamic>{
-      'captionText': _captionText + ' ',
-    };
-    final version = await _channel.invokeMethod('shareTwitter', args);
-    return version;
   }
 
   Future<String?> shareSms(

@@ -155,7 +155,7 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
                     theContent.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
                 val clip = ClipData.newUri(theContent, "Image", imageUri)
                 clipboard.setPrimaryClip(clip)
-                
+
             } else if (content != null) {
                 val clip = ClipData.newPlainText("", content)
                 clipboard.setPrimaryClip(clip)
@@ -164,7 +164,7 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
                 return
             }
             result.success("success")
-        } 
+        }
         else if (call.method == "shareWhatsapp") {
             //shares content on WhatsApp
             val content: String? = call.argument("content")
@@ -186,20 +186,6 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
             intent.type = "vnd.android-dir/mms-sms"
             intent.data = Uri.parse("sms:" )
             intent.putExtra("sms_body", content)
-            try {
-                activity!!.startActivity(intent)
-                result.success("success")
-            } catch (ex: ActivityNotFoundException) {
-                result.success("error")
-            }
-        } else if (call.method == "shareTwitter") {
-            //shares content on twitter
-            val text: String? = call.argument("captionText")
-            val urlScheme = "http://www.twitter.com/intent/tweet?text=${URLEncoder.encode(text, Charsets.UTF_8.name())}"
-            Log.d("", urlScheme)
-
-            val intent = Intent(Intent.ACTION_VIEW)
-            intent.data = Uri.parse(urlScheme)
             try {
                 activity!!.startActivity(intent)
                 result.success("success")

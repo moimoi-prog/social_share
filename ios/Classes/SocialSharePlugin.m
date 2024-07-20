@@ -32,7 +32,7 @@
         NSString *attributionURL = call.arguments[@"attributionURL"];
         NSString *backgroundImage = call.arguments[@"backgroundImage"];
         NSString *backgroundVideo = call.arguments[@"backgroundVideo"];
-        
+
         NSFileManager *fileManager = [NSFileManager defaultManager];
 
         NSString *appId = call.arguments[@"appId"];
@@ -41,31 +41,31 @@
             NSDictionary *dict = [NSDictionary dictionaryWithContentsOfFile:path];
             appId = [dict objectForKey:@"FacebookAppID"];
         }
-        
+
         NSData *imgShare;
         if ( [fileManager fileExistsAtPath: stickerImage]) {
            imgShare = [[NSData alloc] initWithContentsOfFile:stickerImage];
         }
-        
+
         // Assign background image asset and attribution link URL to pasteboard
         NSMutableDictionary *pasteboardItems = [[NSMutableDictionary alloc]initWithDictionary: @{[NSString stringWithFormat:@"%@.stickerImage",destination] : imgShare}];
-        
+
         if (![backgroundTopColor isKindOfClass:[NSNull class]]) {
             [pasteboardItems setObject:backgroundTopColor forKey:[NSString stringWithFormat:@"%@.backgroundTopColor",destination]];
         }
-        
+
         if (![backgroundBottomColor isKindOfClass:[NSNull class]]) {
             [pasteboardItems setObject:backgroundBottomColor forKey:[NSString stringWithFormat:@"%@.backgroundBottomColor",destination]];
         }
-        
+
         if (![attributionURL isKindOfClass:[NSNull class]]) {
             [pasteboardItems setObject:attributionURL forKey:[NSString stringWithFormat:@"%@.contentURL",destination]];
         }
-        
+
         if (![appId isKindOfClass:[NSNull class]] && [@"shareFacebookStory" isEqualToString:call.method]) {
             [pasteboardItems setObject:appId forKey:[NSString stringWithFormat:@"%@.appID",destination]];
         }
-        
+
         //if you have a background image
         NSData *imgBackgroundShare;
         if ([fileManager fileExistsAtPath: backgroundImage]) {
@@ -80,7 +80,7 @@
         }
 
         NSURL *urlScheme = [NSURL URLWithString:[NSString stringWithFormat:@"%@://share?source_application=%@", stories,appId]];
-        
+
         if ([[UIApplication sharedApplication] canOpenURL:urlScheme]) {
 
             if (@available(iOS 10.0, *)) {
@@ -98,7 +98,7 @@
         }
     }
     else if ([@"copyToClipboard" isEqualToString:call.method]) {
-        
+
         NSString *content = call.arguments[@"content"];
         UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
         //assigning content to pasteboard
@@ -112,22 +112,9 @@
             imageData = [[UIImage alloc] initWithContentsOfFile:image];
             pasteboard.image = imageData;
         }
-        
+
         result(@"success");
-        
-    } else if ([@"shareTwitter" isEqualToString:call.method]) {
-        NSString *captionText = call.arguments[@"captionText"];
-        
-        NSString *urlSchemeTwitter = [NSString stringWithFormat:@"twitter://post?message=%@",captionText];
-        NSString* urlTextEscaped = [urlSchemeTwitter stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-        NSURL *urlSchemeSend = [NSURL URLWithString:urlTextEscaped];
-        if (@available(iOS 10.0, *)) {
-            [[UIApplication sharedApplication] openURL:urlSchemeSend options:@{} completionHandler:nil];
-            result(@"success");
-        } else {
-            result(@"error");
-        }
-    
+
     } else if ([@"shareSms" isEqualToString:call.method]) {
         NSString *msg = call.arguments[@"message"];
         NSString *urlstring = call.arguments[@"urlLink"];
@@ -194,7 +181,7 @@
 
                 }
             }
-        
+
         }
     } else if ([@"shareSlack" isEqualToString:call.method]) {
         //NSString *content = call.arguments[@"content"];
