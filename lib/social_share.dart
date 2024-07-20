@@ -4,11 +4,16 @@ import 'dart:io';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
-class SocialShare {
-  static const MethodChannel _channel = const MethodChannel('social_share');
+const MethodChannel _channel = const MethodChannel('social_share');
 
-  static Future<String?> shareInstagramStory({
-    required String appId,
+class SocialShare {
+  final String facebookAppId;
+
+  SocialShare({
+    required this.facebookAppId,
+  });
+
+  Future<String?> shareInstagramStory({
     required String imagePath,
     String? backgroundTopColor,
     String? backgroundBottomColor,
@@ -16,7 +21,6 @@ class SocialShare {
     String? attributionURL,
   }) async {
     return shareMetaStory(
-      appId: appId,
       platform: 'shareInstagramStory',
       imagePath: imagePath,
       backgroundTopColor: backgroundTopColor,
@@ -26,8 +30,7 @@ class SocialShare {
     );
   }
 
-  static Future<String?> shareFacebookStory({
-    required String appId,
+  Future<String?> shareFacebookStory({
     String? imagePath,
     String? backgroundTopColor,
     String? backgroundBottomColor,
@@ -35,7 +38,6 @@ class SocialShare {
     String? attributionURL,
   }) async {
     return shareMetaStory(
-      appId: appId,
       platform: 'shareFacebookStory',
       imagePath: imagePath,
       backgroundTopColor: backgroundTopColor,
@@ -45,8 +47,7 @@ class SocialShare {
     );
   }
 
-  static Future<String?> shareMetaStory({
-    required String appId,
+  Future<String?> shareMetaStory({
     required String platform,
     String? imagePath,
     String? backgroundTopColor,
@@ -73,7 +74,7 @@ class SocialShare {
       'backgroundTopColor': backgroundTopColor,
       'backgroundBottomColor': backgroundBottomColor,
       'attributionURL': attributionURL,
-      'appId': appId
+      'appId': facebookAppId
     };
 
     if (_backgroundResourcePath != null) {
@@ -89,7 +90,7 @@ class SocialShare {
     return response;
   }
 
-  static Future<String?> shareTwitter(
+  Future<String?> shareTwitter(
     String captionText, {
     List<String>? hashtags,
     String? url,
@@ -126,8 +127,11 @@ class SocialShare {
     return version;
   }
 
-  static Future<String?> shareSms(String message,
-      {String? url, String? trailingText}) async {
+  Future<String?> shareSms(
+    String message, {
+    String? url,
+    String? trailingText,
+  }) async {
     Map<String, dynamic>? args;
     if (Platform.isIOS) {
       if (url == null) {
@@ -150,18 +154,16 @@ class SocialShare {
     return version;
   }
 
-  static Future<String?> copyToClipboard({String? text, String? image}) async {
+  Future<String?> copyToClipboard({String? text, String? image}) async {
     final args = <String, dynamic>{
       'content': text,
       'image': image,
     };
-    final response =
-        await _channel.invokeMethod('copyToClipboard', args);
+    final response = await _channel.invokeMethod('copyToClipboard', args);
     return response;
   }
 
-  static Future<bool?> shareOptions(String contentText,
-      {String? imagePath}) async {
+  Future<bool?> shareOptions(String contentText, {String? imagePath}) async {
     Map<String, dynamic> args;
 
     var _imagePath = imagePath;
@@ -177,18 +179,18 @@ class SocialShare {
     return version;
   }
 
-  static Future<String?> shareWhatsapp(String content) async {
+  Future<String?> shareWhatsapp(String content) async {
     final args = <String, dynamic>{'content': content};
     final version = await _channel.invokeMethod('shareWhatsapp', args);
     return version;
   }
 
-  static Future<Map?> checkInstalledAppsForShare() async {
+  Future<Map?> checkInstalledAppsForShare() async {
     final apps = await _channel.invokeMethod('checkInstalledApps');
     return apps;
   }
 
-  static Future<String?> shareTelegram(String content) async {
+  Future<String?> shareTelegram(String content) async {
     final args = <String, dynamic>{'content': content};
     final version = await _channel.invokeMethod('shareTelegram', args);
     return version;
@@ -200,7 +202,7 @@ class SocialShare {
 // }
 
   //Utils
-  static Future<bool> reSaveImage(String? imagePath, String filename) async {
+  Future<bool> reSaveImage(String? imagePath, String filename) async {
     if (imagePath == null) {
       return false;
     }
