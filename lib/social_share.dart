@@ -22,6 +22,7 @@ class SocialShare {
     String? backgroundResourcePath,
     String? attributionURL,
   }) async {
+    // https://developers.facebook.com/docs/instagram-platform/sharing-to-stories
     return shareMetaStory(
       platform: 'shareInstagramStory',
       imagePath: imagePath,
@@ -39,6 +40,7 @@ class SocialShare {
     String? backgroundResourcePath,
     String? attributionURL,
   }) async {
+    // https://developers.facebook.com/docs/sharing/sharing-to-stories
     return shareMetaStory(
       platform: 'shareFacebookStory',
       imagePath: imagePath,
@@ -96,6 +98,7 @@ class SocialShare {
     String? text,
     // List<String>? hashtags,
   }) async {
+    // https://developer.x.com/en/docs/twitter-for-websites/tweet-button/overview
     final nativeBaseUrl = 'twitter://post';
     final webBaseUrl = 'https://twitter.com/intent/tweet';
 
