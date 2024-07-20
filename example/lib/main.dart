@@ -1,9 +1,10 @@
+import 'dart:async';
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:async';
 import 'package:screenshot/screenshot.dart';
 import 'package:social_share/social_share.dart';
 
@@ -15,12 +16,12 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  String facebookId = "xxxxxxxx";
+  String facebookId = 'xxxxxxxx';
 
-  var imageBackground = "image-background.jpg";
-  var videoBackground = "video-background.mp4";
-  String imageBackgroundPath = "";
-  String videoBackgroundPath = "";
+  String imageBackground = 'image-background.jpg';
+  String videoBackground = 'video-background.mp4';
+  String imageBackgroundPath = '';
+  String videoBackgroundPath = '';
 
   @override
   void initState() {
@@ -35,9 +36,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<String> copyImage(String filename) async {
     final tempDir = await getTemporaryDirectory();
-    ByteData bytes = await rootBundle.load("assets/$filename");
+    final bytes = await rootBundle.load('assets/$filename');
     final assetPath = '${tempDir.path}/$filename';
-    File file = await File(assetPath).create();
+    final file = await File(assetPath).create();
     await file.writeAsBytes(bytes.buffer.asUint8List());
     return file.path;
   }
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     final file = await ImagePicker().pickImage(
       source: ImageSource.gallery,
     );
-    var path = file?.path;
+    final path = file?.path;
     if (path == null) {
       return null;
     }
@@ -54,13 +55,13 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<String?> screenshot() async {
-    var data = await screenshotController.capture();
+    final data = await screenshotController.capture();
     if (data == null) {
       return null;
     }
     final tempDir = await getTemporaryDirectory();
     final assetPath = '${tempDir.path}/temp.png';
-    File file = await File(assetPath).create();
+    final file = await File(assetPath).create();
     await file.writeAsBytes(data);
     return file.path;
   }
@@ -89,7 +90,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Instagram",
+                          'Instagram',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -97,15 +98,15 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.gradient),
                         onPressed: () async {
-                          var path = await pickImage();
+                          final path = await pickImage();
                           if (path == null) {
                             return;
                           }
-                          SocialShare.shareInstagramStory(
+                          await SocialShare.shareInstagramStory(
                             appId: facebookId,
                             imagePath: path,
-                            backgroundTopColor: "#ffffff",
-                            backgroundBottomColor: "#000000",
+                            backgroundTopColor: '#ffffff',
+                            backgroundBottomColor: '#000000',
                           ).then((data) {
                             print(data);
                           });
@@ -115,11 +116,11 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.image),
                         onPressed: () async {
-                          var path = await pickImage();
+                          final path = await pickImage();
                           if (path == null) {
                             return;
                           }
-                          SocialShare.shareInstagramStory(
+                          await SocialShare.shareInstagramStory(
                             appId: facebookId,
                             imagePath: path,
                             backgroundResourcePath: imageBackgroundPath,
@@ -132,11 +133,11 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.videocam),
                         onPressed: () async {
-                          var path = await screenshot();
+                          final path = await screenshot();
                           if (path == null) {
                             return;
                           }
-                          SocialShare.shareInstagramStory(
+                          await SocialShare.shareInstagramStory(
                             appId: facebookId,
                             imagePath: path,
                             backgroundResourcePath: videoBackgroundPath,
@@ -151,7 +152,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Facebook",
+                          'Facebook',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -159,15 +160,15 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.gradient),
                         onPressed: () async {
-                          var path = await pickImage();
+                          final path = await pickImage();
                           if (path == null) {
                             return;
                           }
-                          SocialShare.shareFacebookStory(
+                          await SocialShare.shareFacebookStory(
                             appId: facebookId,
                             imagePath: path,
-                            backgroundTopColor: "#ffffff",
-                            backgroundBottomColor: "#000000",
+                            backgroundTopColor: '#ffffff',
+                            backgroundBottomColor: '#000000',
                           ).then((data) {
                             print(data);
                           });
@@ -177,11 +178,11 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.image),
                         onPressed: () async {
-                          var path = await pickImage();
+                          final path = await pickImage();
                           if (path == null) {
                             return;
                           }
-                          SocialShare.shareFacebookStory(
+                          await SocialShare.shareFacebookStory(
                             appId: facebookId,
                             imagePath: path,
                             backgroundResourcePath: imageBackgroundPath,
@@ -194,7 +195,7 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.videocam),
                         onPressed: () async {
-                          var path = await screenshot();
+                          final path = await screenshot();
                           if (path == null) {
                             return;
                           }
@@ -213,7 +214,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Twitter",
+                          'Twitter',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -221,16 +222,16 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.text_fields),
                         onPressed: () async {
-                          SocialShare.shareTwitter(
-                            "This is Social Share twitter example with link.  ",
+                          await SocialShare.shareTwitter(
+                            'This is Social Share twitter example with link.  ',
                             hashtags: [
-                              "SocialSharePlugin",
-                              "world",
-                              "foo",
-                              "bar"
+                              'SocialSharePlugin',
+                              'world',
+                              'foo',
+                              'bar'
                             ],
-                            url: "https://google.com/hello",
-                            trailingText: "cool!!",
+                            url: 'https://google.com/hello',
+                            trailingText: 'cool!!',
                           ).then((data) {
                             print(data);
                           });
@@ -242,7 +243,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Clipboard",
+                          'Clipboard',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -250,7 +251,7 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.image),
                         onPressed: () async {
-                          SocialShare.copyToClipboard(
+                          await SocialShare.copyToClipboard(
                             image: await screenshot(),
                           ).then((data) {
                             print(data);
@@ -261,8 +262,8 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.text_fields),
                         onPressed: () async {
-                          SocialShare.copyToClipboard(
-                            text: "This is Social Share plugin",
+                          await SocialShare.copyToClipboard(
+                            text: 'This is Social Share plugin',
                           ).then((data) {
                             print(data);
                           });
@@ -274,7 +275,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "SMS",
+                          'SMS',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -282,10 +283,10 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.text_fields),
                         onPressed: () async {
-                          SocialShare.shareSms(
-                            "This is Social Share Sms example",
-                            url: "https://google.com/",
-                            trailingText: "\nhello",
+                          await SocialShare.shareSms(
+                            'This is Social Share Sms example',
+                            url: 'https://google.com/',
+                            trailingText: '\nhello',
                           ).then((data) {
                             print(data);
                           });
@@ -297,7 +298,7 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Share Options",
+                          'Share Options',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -305,7 +306,7 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.text_fields),
                         onPressed: () async {
-                          SocialShare.shareOptions("Hello world").then((data) {
+                          await SocialShare.shareOptions('Hello world').then((data) {
                             print(data);
                           });
                         },
@@ -316,36 +317,15 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Whatsapp",
+                          'Whatsapp',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
                       SizedBox(width: 40),
                       ElevatedButton(
                         onPressed: () async {
-                          SocialShare.shareWhatsapp(
-                            "Hello World \n https://google.com",
-                          ).then((data) {
-                            print(data);
-                          });
-                        },
-                        child: Icon(Icons.text_fields),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          "Telegram",
-                          style: TextStyle(fontSize: 16),
-                        ),
-                      ),
-                      SizedBox(width: 40),
-                      ElevatedButton(
-                        onPressed: () async {
-                          SocialShare.shareTelegram(
-                            "Hello World \n https://google.com",
+                          await SocialShare.shareWhatsapp(
+                            'Hello World \n https://google.com',
                           ).then((data) {
                             print(data);
                           });
@@ -358,7 +338,28 @@ class _MyAppState extends State<MyApp> {
                     children: [
                       Expanded(
                         child: Text(
-                          "Get all Apps",
+                          'Telegram',
+                          style: TextStyle(fontSize: 16),
+                        ),
+                      ),
+                      SizedBox(width: 40),
+                      ElevatedButton(
+                        onPressed: () async {
+                          await SocialShare.shareTelegram(
+                            'Hello World \n https://google.com',
+                          ).then((data) {
+                            print(data);
+                          });
+                        },
+                        child: Icon(Icons.text_fields),
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          'Get all Apps',
                           style: TextStyle(fontSize: 16),
                         ),
                       ),
@@ -366,7 +367,7 @@ class _MyAppState extends State<MyApp> {
                       ElevatedButton(
                         child: Icon(Icons.text_fields),
                         onPressed: () async {
-                          SocialShare.checkInstalledAppsForShare().then((data) {
+                          await SocialShare.checkInstalledAppsForShare().then((data) {
                             print(data.toString());
                           });
                         },
