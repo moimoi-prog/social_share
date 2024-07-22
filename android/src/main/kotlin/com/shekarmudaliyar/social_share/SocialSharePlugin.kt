@@ -81,10 +81,6 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             intent.putExtra("interactive_asset_uri", stickerImageFile)
 
-            if (call.method == "shareFacebookStory") {
-                intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appId)
-            }
-
             if (backgroundImage!=null) {
                 //check if background image is also provided
                 val backfile =  File(activeContext!!.cacheDir,backgroundImage)
@@ -99,6 +95,7 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
                 intent.setDataAndType(backgroundVideoFile,"video/*")
             }
 
+            intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appId)
             intent.putExtra("source_application", appId)
             intent.putExtra("content_url", attributionURL)
             intent.putExtra("top_background_color", backgroundTopColor)
