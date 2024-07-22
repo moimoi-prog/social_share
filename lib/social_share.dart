@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -96,17 +97,30 @@ class SocialShare {
 
   Future<void> shareTwitter({
     String? text,
-    // List<String>? hashtags,
   }) async {
     // https://developer.x.com/en/docs/twitter-for-websites/tweet-button/overview
+    if (defaultTargetPlatform == TargetPlatform.iOS) {
+      await _shareTwiterToIos(
+        text: text,
+      );
+    } else if (defaultTargetPlatform == TargetPlatform.android) {
+      await _shareTwiterToAndroid(
+        text: text,
+      );
+    } else {
+      throw 'Could not supported platform.';
+    }
+  }
+
+  Future<void> _shareTwiterToIos({
+    String? text,
+  }) async {
     final nativeBaseUrl = 'twitter://post';
     final webBaseUrl = 'https://twitter.com/intent/tweet';
 
     if (await canLaunchUrlString(nativeBaseUrl)) {
       final queryParameters = {
         if (text != null) 'message': text,
-        // if (hashtags != null && hashtags.isNotEmpty)
-        //   'hashtags': hashtags.join(','),
       };
 
       final postUrl = Uri.parse(nativeBaseUrl).replace(
@@ -117,11 +131,29 @@ class SocialShare {
     } else if (await canLaunchUrlString(webBaseUrl)) {
       final queryParameters = {
         if (text != null) 'text': text,
-        // if (hashtags != null && hashtags.isNotEmpty)
-        //   'hashtags': hashtags.join(','),
       };
 
       final postUrl = Uri.parse(webBaseUrl).replace(
+        queryParameters: queryParameters,
+      );
+
+      await launchUrl(postUrl);
+    } else {
+      throw 'Could not launch X.';
+    }
+  }
+
+  Future<void> _shareTwiterToAndroid({
+    String? text,
+  }) async {
+    final url = 'https://twitter.com/intent/tweet';
+
+    if (await canLaunchUrlString(url)) {
+      final queryParameters = {
+        if (text != null) 'text': text,
+      };
+
+      final postUrl = Uri.parse(url).replace(
         queryParameters: queryParameters,
       );
 
