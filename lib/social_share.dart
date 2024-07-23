@@ -16,6 +16,11 @@ class SocialShare {
     required this.facebookAppId,
   });
 
+  // https://developers.facebook.com/docs/instagram-platform/sharing-to-stories
+  //
+  // アプリがインストールされていない場合はアプリのインストールを促すページが開かれます
+  // https://developers.facebook.com/docs/instagram-platform/instagram-graph-api/content-publishing
+  // > 現時点では、Content Publishing APIを使用してストーリーズを公開できるのはビジネスアカウントのみです。
   Future<String?> shareInstagramStory({
     required String imagePath,
     String? backgroundTopColor,
@@ -23,7 +28,6 @@ class SocialShare {
     String? backgroundResourcePath,
     String? attributionURL,
   }) async {
-    // https://developers.facebook.com/docs/instagram-platform/sharing-to-stories
     return shareMetaStory(
       platform: 'shareInstagramStory',
       imagePath: imagePath,

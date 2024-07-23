@@ -63,50 +63,68 @@ class SocialSharePlugin:FlutterPlugin, MethodCallHandler, ActivityAware {
                 intentString = "com.facebook.stories.ADD_TO_STORY"
             }
 
-            val stickerImage: String? = call.argument("stickerImage")
-            val backgroundTopColor: String? = call.argument("backgroundTopColor")
-            val backgroundBottomColor: String? = call.argument("backgroundBottomColor")
-            val attributionURL: String? = call.argument("attributionURL")
-            val backgroundImage: String? = call.argument("backgroundImage")
-            val backgroundVideo: String? = call.argument("backgroundVideo")
-
-            val file =  File(activeContext!!.cacheDir,stickerImage)
-            val stickerImageFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", file)
-            val appId: String? = call.argument("appId")
-
-            val intent = Intent(intentString)
-
-            intent.type = "image/*"
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            intent.putExtra("interactive_asset_uri", stickerImageFile)
-
-            if (backgroundImage!=null) {
-                //check if background image is also provided
-                val backfile =  File(activeContext!!.cacheDir,backgroundImage)
-                val backgroundImageFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", backfile)
-                intent.setDataAndType(backgroundImageFile,"image/*")
+            val isInstagramInstalled = try {
+                activity!!.packageManager.getPackageInfo(appName, PackageManager.GET_ACTIVITIES)
+                true
+            } catch (e: PackageManager.NameNotFoundException) {
+                false
             }
 
-            if (backgroundVideo!=null) {
-                //check if background video is also provided
-                val backfile =  File(activeContext!!.cacheDir,backgroundVideo)
-                val backgroundVideoFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", backfile)
-                intent.setDataAndType(backgroundVideoFile,"video/*")
-            }
-
-            intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appId)
-            intent.putExtra("source_application", appId)
-            intent.putExtra("content_url", attributionURL)
-            intent.putExtra("top_background_color", backgroundTopColor)
-            intent.putExtra("bottom_background_color", backgroundBottomColor)
-            // Instantiate activity and verify it will resolve implicit intent
-            activity!!.grantUriPermission(appName, stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
-            if (activity!!.packageManager.resolveActivity(intent, 0) != null) {
+            if (!isInstagramInstalled) {
+                val intent = Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://play.google.com/store/apps/details?id=" + appName)
+                ).apply {
+                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)  // ここでフラグを追加
+                }
                 activeContext!!.startActivity(intent)
                 result.success("success")
             } else {
-                result.success("error")
+                val stickerImage: String? = call.argument("stickerImage")
+                val backgroundTopColor: String? = call.argument("backgroundTopColor")
+                val backgroundBottomColor: String? = call.argument("backgroundBottomColor")
+                val attributionURL: String? = call.argument("attributionURL")
+                val backgroundImage: String? = call.argument("backgroundImage")
+                val backgroundVideo: String? = call.argument("backgroundVideo")
+
+                val file =  File(activeContext!!.cacheDir,stickerImage)
+                val stickerImageFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", file)
+                val appId: String? = call.argument("appId")
+
+                val intent = Intent(intentString)
+
+                intent.type = "image/*"
+                intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                intent.putExtra("interactive_asset_uri", stickerImageFile)
+
+                if (backgroundImage!=null) {
+                    //check if background image is also provided
+                    val backfile =  File(activeContext!!.cacheDir,backgroundImage)
+                    val backgroundImageFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", backfile)
+                    intent.setDataAndType(backgroundImageFile,"image/*")
+                }
+
+                if (backgroundVideo!=null) {
+                    //check if background video is also provided
+                    val backfile =  File(activeContext!!.cacheDir,backgroundVideo)
+                    val backgroundVideoFile = FileProvider.getUriForFile(activeContext!!, activeContext!!.applicationContext.packageName + ".com.shekarmudaliyar.social_share", backfile)
+                    intent.setDataAndType(backgroundVideoFile,"video/*")
+                }
+
+                intent.putExtra("com.facebook.platform.extra.APPLICATION_ID", appId)
+                intent.putExtra("source_application", appId)
+                intent.putExtra("content_url", attributionURL)
+                intent.putExtra("top_background_color", backgroundTopColor)
+                intent.putExtra("bottom_background_color", backgroundBottomColor)
+                // Instantiate activity and verify it will resolve implicit intent
+                activity!!.grantUriPermission(appName, stickerImageFile, Intent.FLAG_GRANT_READ_URI_PERMISSION)
+                if (activity!!.packageManager.resolveActivity(intent, 0) != null) {
+                    activeContext!!.startActivity(intent)
+                    result.success("success")
+                } else {
+                    result.success("error")
+                }
             }
         } else if (call.method == "shareOptions") {
             //native share options
