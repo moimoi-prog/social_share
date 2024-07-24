@@ -15,15 +15,21 @@
 
 - (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
     if ([@"shareInstagramStory" isEqualToString:call.method] || [@"shareFacebookStory" isEqualToString:call.method]) {
-
         NSString *destination;
         NSString *stories;
+        NSString *appScheme;
+        NSString *appStoreURL;
+
         if ([@"shareInstagramStory" isEqualToString:call.method]) {
             destination = @"com.instagram.sharedSticker";
             stories = @"instagram-stories";
+            appScheme = @"instagram://app";
+            appStoreURL = @"https://apps.apple.com/app/instagram/id389801252";
         } else {
             destination = @"com.facebook.sharedSticker";
             stories = @"facebook-stories";
+            appScheme = @"fb://profile";
+            appStoreURL = @"https://apps.apple.com/app/facebook/id284882215";
         }
 
         NSString *stickerImage = call.arguments[@"stickerImage"];
@@ -43,58 +49,70 @@
         }
 
         NSData *imgShare;
-        if ( [fileManager fileExistsAtPath: stickerImage]) {
-           imgShare = [[NSData alloc] initWithContentsOfFile:stickerImage];
+        if ([fileManager fileExistsAtPath:stickerImage]) {
+        imgShare = [[NSData alloc] initWithContentsOfFile:stickerImage];
         }
 
         // Assign background image asset and attribution link URL to pasteboard
-        NSMutableDictionary *pasteboardItems = [[NSMutableDictionary alloc]initWithDictionary: @{[NSString stringWithFormat:@"%@.stickerImage",destination] : imgShare}];
+        NSMutableDictionary *pasteboardItems = [[NSMutableDictionary alloc] initWithDictionary:@{[NSString stringWithFormat:@"%@.stickerImage", destination] : imgShare}];
 
         if (![backgroundTopColor isKindOfClass:[NSNull class]]) {
-            [pasteboardItems setObject:backgroundTopColor forKey:[NSString stringWithFormat:@"%@.backgroundTopColor",destination]];
+            [pasteboardItems setObject:backgroundTopColor forKey:[NSString stringWithFormat:@"%@.backgroundTopColor", destination]];
         }
 
         if (![backgroundBottomColor isKindOfClass:[NSNull class]]) {
-            [pasteboardItems setObject:backgroundBottomColor forKey:[NSString stringWithFormat:@"%@.backgroundBottomColor",destination]];
+            [pasteboardItems setObject:backgroundBottomColor forKey:[NSString stringWithFormat:@"%@.backgroundBottomColor", destination]];
         }
 
         if (![attributionURL isKindOfClass:[NSNull class]]) {
-            [pasteboardItems setObject:attributionURL forKey:[NSString stringWithFormat:@"%@.contentURL",destination]];
+            [pasteboardItems setObject:attributionURL forKey:[NSString stringWithFormat:@"%@.contentURL", destination]];
         }
 
         if (![appId isKindOfClass:[NSNull class]] && [@"shareFacebookStory" isEqualToString:call.method]) {
-            [pasteboardItems setObject:appId forKey:[NSString stringWithFormat:@"%@.appID",destination]];
+            [pasteboardItems setObject:appId forKey:[NSString stringWithFormat:@"%@.appID", destination]];
         }
 
-        //if you have a background image
+        // If you have a background image
         NSData *imgBackgroundShare;
-        if ([fileManager fileExistsAtPath: backgroundImage]) {
+        if ([fileManager fileExistsAtPath:backgroundImage]) {
             imgBackgroundShare = [[NSData alloc] initWithContentsOfFile:backgroundImage];
-            [pasteboardItems setObject:imgBackgroundShare forKey:[NSString stringWithFormat:@"%@.backgroundImage",destination]];
-        }
-        //if you have a background video
-        NSData *videoBackgroundShare;
-        if ([fileManager fileExistsAtPath: backgroundVideo]) {
-            videoBackgroundShare = [[NSData alloc] initWithContentsOfFile:backgroundVideo options:NSDataReadingMappedIfSafe error:nil];
-            [pasteboardItems setObject:videoBackgroundShare forKey:[NSString stringWithFormat:@"%@.backgroundVideo",destination]];
+            [pasteboardItems setObject:imgBackgroundShare forKey:[NSString stringWithFormat:@"%@.backgroundImage", destination]];
         }
 
-        NSURL *urlScheme = [NSURL URLWithString:[NSString stringWithFormat:@"%@://share?source_application=%@", stories,appId]];
+        // If you have a background video
+        NSData *videoBackgroundShare;
+        if ([fileManager fileExistsAtPath:backgroundVideo]) {
+            videoBackgroundShare = [[NSData alloc] initWithContentsOfFile:backgroundVideo options:NSDataReadingMappedIfSafe error:nil];
+            [pasteboardItems setObject:videoBackgroundShare forKey:[NSString stringWithFormat:@"%@.backgroundVideo", destination]];
+        }
+
+        NSURL *urlScheme = [NSURL URLWithString:[NSString stringWithFormat:@"%@://share?source_application=%@", stories, appId]];
 
         if ([[UIApplication sharedApplication] canOpenURL:urlScheme]) {
-
             if (@available(iOS 10.0, *)) {
-            NSDictionary *pasteboardOptions = @{UIPasteboardOptionExpirationDate : [[NSDate date] dateByAddingTimeInterval:60 * 5]};
-            // This call is iOS 10+, can use 'setItems' depending on what versions you support
-            [[UIPasteboard generalPasteboard] setItems:@[pasteboardItems] options:pasteboardOptions];
+                NSDictionary *pasteboardOptions = @{UIPasteboardOptionExpirationDate : [[NSDate date] dateByAddingTimeInterval:60 * 5]};
+                // This call is iOS 10+, can use 'setItems' depending on what versions you support
+                [[UIPasteboard generalPasteboard] setItems:@[pasteboardItems] options:pasteboardOptions];
 
-            [[UIApplication sharedApplication] openURL:urlScheme options:@{} completionHandler:nil];
-              result(@"success");
+                [[UIApplication sharedApplication] openURL:urlScheme options:@{} completionHandler:nil];
+                result(@"success");
             } else {
                 result(@"error");
             }
         } else {
-            result(@"error");
+            // Open App Store if the app is not installed
+            NSURL *appStoreNSURL = [NSURL URLWithString:appStoreURL];
+            if ([[UIApplication sharedApplication] canOpenURL:appStoreNSURL]) {
+                if (@available(iOS 10.0, *)) {
+                    [[UIApplication sharedApplication] openURL:appStoreNSURL options:@{} completionHandler:nil];
+                    result(@"success");
+                } else {
+                    [[UIApplication sharedApplication] openURL:appStoreNSURL];
+                    result(@"success");
+                }
+            } else {
+                result(@"error");
+            }
         }
     }
     else if ([@"copyToClipboard" isEqualToString:call.method]) {
